@@ -70,5 +70,11 @@ RUN PLATFORM=PLATFORM_WEB make
 
 FROM raylib as build
 
+WORKDIR /root
+
 COPY . .
-CMD ["sleep", "10"]
+RUN rm -r build && \
+	mkdir -p build
+RUN emcc -o ./build/bhh.html main.cpp -Os -Wall ./raylib/src/libraylib.a -I. -I./include -L. -L./raylib/src -s USE_GLFW=3 -s ASYNCIFY --shell-file ./raylib/src/shell.html -DPLATFORM_WEB
+
+CMD ["echo", "Hello, run me differently"]

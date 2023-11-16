@@ -176,13 +176,13 @@ int main(void)
             planets[i].position.y += planets[i].v.y * dt;
 
             if (
-                planets[i].position.y + planets[i].radius >= screenHeight && planets[i].v.y > 0 ||
-                planets[i].position.y - planets[i].radius <= 0 && planets[i].v.y < 0
+                ((planets[i].position.y + planets[i].radius >= screenHeight) && (planets[i].v.y > 0)) ||
+                ((planets[i].position.y - planets[i].radius <= 0) && (planets[i].v.y < 0))
             )
                 planets[i].v.y = -0.5 * planets[i].v.y;
             if (
-                planets[i].position.x + planets[i].radius >= screenWidth && planets[i].v.x > 0 ||
-                planets[i].position.x - planets[i].radius <= 0 && planets[i].v.x < 0
+                ((planets[i].position.x + planets[i].radius >= screenWidth) && (planets[i].v.x > 0)) ||
+                ((planets[i].position.x - planets[i].radius <= 0) && (planets[i].v.x < 0))
             )
                 planets[i].v.x = -0.5 * planets[i].v.x;
         }
