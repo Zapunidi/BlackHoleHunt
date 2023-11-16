@@ -1,5 +1,6 @@
 # Cmake builds
 build/*
+examples/*
 
 # IDE
 .vscode/*
