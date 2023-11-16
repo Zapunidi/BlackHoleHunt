@@ -73,7 +73,7 @@ FROM raylib as build
 WORKDIR /root
 
 COPY . .
-RUN rm -r build && \
+RUN rm -rf build && \
 	mkdir -p build
 RUN emcc -o ./build/bhh.html main.cpp -Os -Wall ./raylib/src/libraylib.a -I. -I./include -L. -L./raylib/src -s USE_GLFW=3 -s ASYNCIFY --shell-file ./raylib/src/shell.html -DPLATFORM_WEB
 
