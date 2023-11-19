@@ -71,6 +71,9 @@ int main(void)
     UnloadImage(img[0]);
     UnloadImage(img[1]);
 
+    Sound soundEat;
+    soundEat = LoadSound("../resources/spring.wav");
+
     // Create Planets
     CircleWave* planets = InitPlanets(NULL, screenWidth, screenHeight, difficulty[level]);
 
@@ -160,6 +163,7 @@ int main(void)
                     float growth = sqrtf(plr.radius * plr.radius + planets[i].radius * planets[i].radius) / plr.radius;
                     plr.radius *= growth;
                     planets[i] = planets[--planets_number];
+                    PlaySound(soundEat);
                     continue;
                 }
                 else // Die

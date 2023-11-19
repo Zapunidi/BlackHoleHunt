@@ -76,7 +76,7 @@ COPY . .
 RUN rm -rf build && \
 	mkdir -p build
 RUN emcc -o ./build/bhh.html main.cpp -Os -Wall ./raylib/src/libraylib.a -I. -I./include \
-	-L. -L./raylib/src -s USE_GLFW=3 -s ASYNCIFY --shell-file ./raylib/src/shell.html -DPLATFORM_WEB \
+	-L. -L./raylib/src -s USE_GLFW=3 -s ASYNCIFY --shell-file ./shell1_micro.html -DPLATFORM_WEB \
 	--preload-file resources/mini1111.xm@resources/mini1111.xm \
 	--preload-file resources/icon.png@resources/icon.png \
 	--preload-file resources/m13.png@resources/m13.png \
