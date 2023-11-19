@@ -322,7 +322,7 @@ int GravityCollision (Player& plr, CircleWave* planets, unsigned int& planets_nu
         float dy = plr.position.y - planets[i].position.y;
         float distance2 = dx * dx + dy * dy;
         float collision = plr.radius + planets[i].radius;
-        if (distance2 < collision * collision && !plr.warp.state == WARP_STATE_ACTIVE) // bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, float radius2);
+        if (distance2 < collision * collision) // bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, float radius2);
         {
             if (plr.radius > planets[i].radius) // Eat
             {
