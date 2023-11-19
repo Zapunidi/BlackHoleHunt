@@ -5,7 +5,7 @@ FROM ubuntu:20.04 as base
 
 # LABEL about the custom image
 LABEL maintainer="zapunidy@gmail.com" \
-	version="0.5" \
+	version="0.7" \
 	description="raylib for web builder"
 
 # Disable Prompt During Packages Installation
@@ -80,6 +80,7 @@ RUN emcc -o ./build/bhh.html main.cpp -Os -Wall ./raylib/src/libraylib.a -I. -I.
 	--preload-file resources/mini1111.xm@resources/mini1111.xm \
 	--preload-file resources/icon.png@resources/icon.png \
 	--preload-file resources/m13.png@resources/m13.png \
-	--preload-file resources/maya.png@resources/maya.png
+	--preload-file resources/maya.png@resources/maya.png \
+	--preload-file resources/eat.wav@resources/eat.wav
 
 CMD ["echo", "Hello, run me differently"]
