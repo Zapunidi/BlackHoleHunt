@@ -339,8 +339,8 @@ int GravityCollision (Player& plr, CircleWave* planets, unsigned int& planets_nu
             }
         }
         
-        planets[i].v.x += 4000 * dt * plr.radius * dx / distance2;
-        planets[i].v.y += 4000 * dt * plr.radius * dy / distance2;
+        planets[i].v.x += 3000 * dt * plr.radius * dx / distance2;
+        planets[i].v.y += 3000 * dt * plr.radius * dy / distance2;
     }
     return 0;
 }

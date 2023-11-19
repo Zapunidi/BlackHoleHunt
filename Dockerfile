@@ -42,7 +42,7 @@ ENV EMSDK=/root/emsdk \
 FROM emsdk as raylib
 
 # Download raylib
-RUN git clone https://github.com/raysan5/raylib.git
+RUN git clone https://github.com/Zapunidi/raylib.git
 
 WORKDIR /root/raylib/src
 
