@@ -17,18 +17,12 @@
 #define CIRCLES_SPEED               300
 #define NUMBER_OF_PLAYER_CIRCLES    4
 #define INITIAL_PLAYER_RADIUS       6
-#define WARP_BOOST_ACTIVE_TIME      1
-#define WARP_BOOST_RECHARGE_TIME    2
-
-enum GameState {
-    GAME_START, // Not used for now. Meant for starting menu
-    GAME_ON, // When the game is going on
-    GAME_WON, // When the game is finished
-    GAME_CREDITS, // Showing credits
-    GAME_LOST // Not used for now.
-    }; 
+#define WARP_BOOST_ACTIVE_TIME      1.0f
+#define WARP_BOOST_COOLDOWN_TIME    2.0f
 
 static unsigned int planets_number = 0;
+
+int GravityCollision (Player& plr, CircleWave* planets, unsigned int& planets_number, float dt, Sound soundEat);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -148,33 +142,38 @@ int main(void)
             }
         }
 
-        // Game physics
-        for (int i = planets_number - 1; (i >= 0) && !pause; i--)
-        {              
-            // Gravity
-            float dx = plr.position.x - planets[i].position.x;
-            float dy = plr.position.y - planets[i].position.y;
-            float distance2 = dx * dx + dy * dy;
-            float collision = plr.radius + planets[i].radius;
-            if (distance2 < collision * collision) // bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, float radius2);
+        // Player
+        if (plr.warp.state == WARP_STATE_ACTIVE)
+        {
+            plr.warp.activeLeft -= dt;
+            if (plr.warp.activeLeft < 0)
             {
-                if (plr.radius > planets[i].radius) // Eat
-                {
-                    float growth = sqrtf(plr.radius * plr.radius + planets[i].radius * planets[i].radius) / plr.radius;
-                    plr.radius *= growth;
-                    planets[i] = planets[--planets_number];
-                    PlaySound(soundEat);
-                    continue;
-                }
-                else // Die
-                {
-                    plr.color = planets[i].color;
-                    pause = !pause;
-                }
+                plr.warp.state = WARP_STATE_COOLDOWN;
+                plr.warp.activeLeft = WARP_BOOST_ACTIVE_TIME;
+            }   
+        }
+        else if (plr.warp.state == WARP_STATE_COOLDOWN)
+        {
+            plr.warp.cooldown -= dt;
+            if (plr.warp.cooldown < 0)
+            {
+                plr.warp.cooldown = WARP_BOOST_COOLDOWN_TIME;
+                plr.warp.state = WARP_STATE_READY;
             }
-            planets[i].v.x += 40 * plr.radius * dx / distance2;
-            planets[i].v.y += 40 * plr.radius * dy / distance2;
+                
+        }
+        else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            plr.warp.state = WARP_STATE_ACTIVE;
+        }
 
+        // Game physics
+        if (plr.warp.state != WARP_STATE_ACTIVE)
+            if (-1 == GravityCollision(plr, planets, planets_number, dt, soundEat))
+                pause = true;
+
+        for (int i = planets_number - 1; (i >= 0) && !pause; i--)
+        {
             // Motion and bouncing
             planets[i].position.x += planets[i].v.x * dt;
             planets[i].position.y += planets[i].v.y * dt;
@@ -207,18 +206,22 @@ int main(void)
                 }
             
                 // Player
-                DrawCircleV(plr.position, plr.radius, plr.color); // Center black hole
-                for (int i = 0; i < NUMBER_OF_PLAYER_CIRCLES; i++)
-                {
-                    plr.gravity_lines_shift -= dt * 0.5;
-                    if (plr.gravity_lines_shift < 0)
-                        plr.gravity_lines_shift += 1;
-                    DrawCircleLines(
-                        plr.position.x, plr.position.y, 
-                        plr.radius * (NUMBER_OF_PLAYER_CIRCLES - i + plr.gravity_lines_shift), 
-                        Fade(plr.color, plr.alpha * (i + 1 - plr.gravity_lines_shift) / (NUMBER_OF_PLAYER_CIRCLES + 1))
-                        );
-                }
+                if (plr.warp.state == WARP_STATE_ACTIVE)
+                    DrawCircleV(plr.position, plr.radius, Fade(plr.color, 0.3));
+                else
+                    DrawCircleV(plr.position, plr.radius, plr.color);
+                if (plr.warp.state != WARP_STATE_ACTIVE)
+                    for (int i = 0; i < NUMBER_OF_PLAYER_CIRCLES; i++)
+                    {
+                        plr.gravity_lines_shift -= dt * 0.5;
+                        if (plr.gravity_lines_shift < 0)
+                            plr.gravity_lines_shift += 1;
+                        DrawCircleLines(
+                            plr.position.x, plr.position.y, 
+                            plr.radius * (NUMBER_OF_PLAYER_CIRCLES - i + plr.gravity_lines_shift), 
+                            Fade(plr.color, plr.alpha * (i + 1 - plr.gravity_lines_shift) / (NUMBER_OF_PLAYER_CIRCLES + 1))
+                            );
+                    }
 
                 // Draw help instructions
                 DrawText("Press SPACE to restart level", 40, 40, 20, BLACK);
@@ -280,8 +283,9 @@ void InitPlayer(Player& plr)
     plr.alpha = 1;
     plr.gravity_lines_shift = 0;
     plr.color = BLACK;
-    plr.warp.ActiveLeft = 0;
-    plr.warp.Cooldown = WARP_BOOST_RECHARGE_TIME;
+    plr.warp.activeLeft = WARP_BOOST_ACTIVE_TIME;
+    plr.warp.cooldown = WARP_BOOST_COOLDOWN_TIME;
+    plr.warp.state = WARP_STATE_ACTIVE;
 }
 
 CircleWave* InitPlanets(CircleWave* planets, int screenWidth, int screenHeight, float difficulty)
@@ -299,7 +303,6 @@ CircleWave* InitPlanets(CircleWave* planets, int screenWidth, int screenHeight, 
     {
         planets[i].alpha = 0.8f;
         planets[i].radius = (float)INITIAL_PLAYER_RADIUS / 1.3 * expf((float)i / 5);
-        // planets[i].radius = expf((float)GetRandomValue(100, 200) / 100);
         planets[i].position.x = (float)GetRandomValue((int)planets[i].radius, (int)(screenWidth - planets[i].radius));
         planets[i].position.y = (float)GetRandomValue((int)planets[i].radius, (int)(screenHeight - planets[i].radius));
         planets[i].v.x = (float)GetRandomValue(-CIRCLES_SPEED, CIRCLES_SPEED);
@@ -308,4 +311,36 @@ CircleWave* InitPlanets(CircleWave* planets, int screenWidth, int screenHeight, 
     }
     
     return planets;
+}
+
+int GravityCollision (Player& plr, CircleWave* planets, unsigned int& planets_number, float dt, Sound soundEat)
+{
+    for (int i = planets_number - 1; i >= 0; i--)
+    {
+        // Gravity
+        float dx = plr.position.x - planets[i].position.x;
+        float dy = plr.position.y - planets[i].position.y;
+        float distance2 = dx * dx + dy * dy;
+        float collision = plr.radius + planets[i].radius;
+        if (distance2 < collision * collision && !plr.warp.state == WARP_STATE_ACTIVE) // bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, float radius2);
+        {
+            if (plr.radius > planets[i].radius) // Eat
+            {
+                float growth = sqrtf(plr.radius * plr.radius + planets[i].radius * planets[i].radius) / plr.radius;
+                plr.radius *= growth;
+                planets[i] = planets[--planets_number];
+                PlaySound(soundEat);
+                continue;
+            }
+            else // Die
+            {
+                plr.color = planets[i].color;
+                return -1;
+            }
+        }
+        
+        planets[i].v.x += 4000 * dt * plr.radius * dx / distance2;
+        planets[i].v.y += 4000 * dt * plr.radius * dy / distance2;
+    }
+    return 0;
 }

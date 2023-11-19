@@ -1,8 +1,22 @@
 #include "raylib.h"
 
+enum GameState {
+    GAME_START, // Not used for now. Meant for starting menu
+    GAME_ON, // When the game is going on
+    GAME_WON, // When the game is finished
+    GAME_CREDITS, // Showing credits
+    GAME_LOST // Not used for now.
+    }; 
+
+enum WarpState {
+    WARP_STATE_ACTIVE,
+    WARP_STATE_COOLDOWN,
+    WARP_STATE_READY
+    }; 
 typedef struct {
-    float ActiveLeft;
-    float Cooldown;
+    float activeLeft;
+    float cooldown;
+    WarpState state;
 } WarpBoost;
 
 typedef struct {
