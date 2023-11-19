@@ -168,7 +168,7 @@ int main(void)
         }
 
         // Game physics
-        if (plr.warp.state != WARP_STATE_ACTIVE)
+        if (plr.warp.state != WARP_STATE_ACTIVE && ! pause)
             if (-1 == GravityCollision(plr, planets, planets_number, dt, soundEat))
                 pause = true;
 
