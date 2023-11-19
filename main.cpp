@@ -49,9 +49,14 @@ int main(void)
     SetConfigFlags(FLAG_VSYNC_HINT);
 
     InitWindow(screenWidth, screenHeight, "Black hole hunt");
-    SetWindowIcon(LoadImage("../resources/icon.png"));
     HideCursor();
     InitAudioDevice();                  // Initialize audio device
+
+    Music music = LoadMusicStream("../resources/mini1111.xm");
+    Sound soundEat = LoadSound("../resources/eat.wav");
+    
+    Image icon = LoadImage("../resources/icon.png");
+    SetWindowIcon(icon);
 
     // Credits resources
     Image img[2];
@@ -70,21 +75,16 @@ int main(void)
     DedicationHeight[1] = img[1].height;
     UnloadImage(img[0]);
     UnloadImage(img[1]);
-
-    Sound soundEat;
-    soundEat = LoadSound("../resources/spring.wav");
-
+    
+    music.looping = true;
+    PlayMusicStream(music);
+    
     // Create Planets
     CircleWave* planets = InitPlanets(NULL, screenWidth, screenHeight, difficulty[level]);
 
     // Create Player
     Player plr;
     InitPlayer(plr);
-
-    Music music = LoadMusicStream("../resources/mini1111.xm");
-    music.looping = true;
-
-    PlayMusicStream(music);
 
     bool pause = false;
 
@@ -260,6 +260,8 @@ int main(void)
     // De-Initialization
     //--------------------------------------------------------------------------------------
     UnloadMusicStream(music);          // Unload music stream buffers from RAM
+    UnloadSound(soundEat);          // Unload music stream buffers from RAM
+    UnloadImage(icon);
 
     UnloadTexture(Dedication[0]);
     UnloadTexture(Dedication[1]);
