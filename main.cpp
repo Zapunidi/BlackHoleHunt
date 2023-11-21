@@ -20,6 +20,8 @@
 #define WARP_BOOST_ACTIVE_TIME      1.0f
 #define WARP_BOOST_COOLDOWN_TIME    2.0f
 
+#define GLSL_VERSION            330
+
 static unsigned int planets_number = 0;
 
 int GravityCollision (Player& plr, CircleWave* planets, unsigned int& planets_number, float dt, Sound soundEat);
@@ -70,6 +72,24 @@ int main(void)
     UnloadImage(img[0]);
     UnloadImage(img[1]);
     
+    // Shaders
+    Shader warpShader = LoadShader(0, TextFormat("../resources/shaders/glsl%i/warp.fs", GLSL_VERSION));
+    
+    {
+        float width = screenWidth, height = screenHeight;
+        SetShaderValue(warpShader, GetShaderLocation(warpShader, "renderWidth"), &width, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(warpShader, GetShaderLocation(warpShader, "renderHeight"), &height, SHADER_UNIFORM_FLOAT);
+    }
+
+    // Get variable (uniform) location on the shader to connect with the program
+    // NOTE: If uniform variable could not be found in the shader, function returns -1
+    int warpCenterLoc = GetShaderLocation(warpShader, "center");
+    int warpRadiusLoc = GetShaderLocation(warpShader, "radius");
+    float warpCenter[2] = { (float)screenWidth/2, (float)screenHeight/2 };
+
+    // Create a RenderTexture2D to be used for render to texture
+    RenderTexture2D target = LoadRenderTexture(screenWidth, screenHeight);
+
     music.looping = true;
     PlayMusicStream(music);
     
@@ -106,7 +126,14 @@ int main(void)
         if (state == GAME_ON)
         {
             if (IsCursorOnScreen())
+            {
                 plr.position = GetMousePosition();
+                warpCenter[0] = plr.position.x;
+                warpCenter[1] = (screenHeight - plr.position.y);
+                SetShaderValue(warpShader, warpCenterLoc, warpCenter, SHADER_UNIFORM_VEC2);
+                float warpRadius = plr.radius * 3;
+                SetShaderValue(warpShader, warpRadiusLoc, &warpRadius, SHADER_UNIFORM_FLOAT);
+            }
             else
                 ;// plr.position = {-1E5, -1E5};
         }
@@ -193,10 +220,9 @@ int main(void)
 
         // Draw
         //----------------------------------------------------------------------------------
-        BeginDrawing();
-
-            if (state == GAME_ON || state == GAME_WON)
-            {
+        if (state == GAME_ON || state == GAME_WON)
+        {
+            BeginTextureMode(target);       // Enable drawing to texture
                 ClearBackground(RAYWHITE);
 
                 // Planets
@@ -207,10 +233,14 @@ int main(void)
             
                 // Player
                 if (plr.warp.state == WARP_STATE_ACTIVE)
+                {
                     DrawCircleV(plr.position, plr.radius, Fade(plr.color, 0.3));
+                    float warpRadius = 1.0;
+                    SetShaderValue(warpShader, warpRadiusLoc, &warpRadius, SHADER_UNIFORM_FLOAT);
+                }
                 else
+                {
                     DrawCircleV(plr.position, plr.radius, plr.color);
-                if (plr.warp.state != WARP_STATE_ACTIVE)
                     for (int i = 0; i < NUMBER_OF_PLAYER_CIRCLES; i++)
                     {
                         plr.gravity_lines_shift -= dt * 0.5;
@@ -222,13 +252,23 @@ int main(void)
                             Fade(plr.color, plr.alpha * (i + 1 - plr.gravity_lines_shift) / (NUMBER_OF_PLAYER_CIRCLES + 1))
                             );
                     }
+                }
+            EndTextureMode();               // End drawing to texture (now we have a texture available for next passes)
+            BeginDrawing();
+            ClearBackground(RAYWHITE);  // Clear screen background
+                BeginShaderMode(warpShader);
+                    // NOTE: Render texture must be y-flipped due to default OpenGL coordinates (left-bottom)
+                    DrawTextureRec(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, (float)-target.texture.height }, (Vector2){ 0, 0 }, WHITE);
+                EndShaderMode();
 
                 // Draw help instructions
                 DrawText("Press SPACE to restart level", 40, 40, 20, BLACK);
                 DrawText(TextFormat("Planets remaining: %02i. Level %i", planets_number, level), 40, 70, 20, BLACK);
-            }
-            else if (state == GAME_CREDITS)
-            {
+            EndDrawing();
+        }
+        else if (state == GAME_CREDITS)
+        {
+            BeginDrawing();
                 ClearBackground(BLACK);
                 if (DedicationNum == 0)
                 {
@@ -241,8 +281,8 @@ int main(void)
                     DrawTexture(Dedication[1], screenWidth / 2 - DedicationWidth[1], screenHeight / 2 - DedicationHeight[1] / 2, Fade(WHITE, CreditsAlpha));
                     DrawText("Happy birthday, Maya!", screenWidth / 2 + 20, screenHeight / 2, 40, Fade(RAYWHITE, CreditsAlpha));
                 }
-            }
-        EndDrawing();
+            EndDrawing();
+        }
         //----------------------------------------------------------------------------------
 
         // Winning
@@ -262,16 +302,19 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadMusicStream(music);          // Unload music stream buffers from RAM
-    UnloadSound(soundEat);          // Unload music stream buffers from RAM
+    UnloadMusicStream(music);           // Unload music stream buffers from RAM
+    UnloadSound(soundEat);              // Unload music stream buffers from RAM
     UnloadImage(icon);
 
     UnloadTexture(Dedication[0]);
     UnloadTexture(Dedication[1]);
 
-    CloseAudioDevice();     // Close audio device (music streaming is automatically stopped)
+    UnloadShader(warpShader);           // Unload shader
+    UnloadRenderTexture(target);        // Unload render texture
 
-    CloseWindow();          // Close window and OpenGL context
+    CloseAudioDevice();                 // Close audio device (music streaming is automatically stopped)
+
+    CloseWindow();                      // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
     return 0;
