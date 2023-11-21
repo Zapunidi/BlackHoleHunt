@@ -234,10 +234,20 @@ int main(void)
                 // Player
                 if (plr.warp.state == WARP_STATE_ACTIVE)
                 {
-                    DrawCircleV(plr.position, plr.radius, Fade(plr.color, 0.3));
                     float warpRadius = 1.0;
                     SetShaderValue(warpShader, warpRadiusLoc, &warpRadius, SHADER_UNIFORM_FLOAT);
                 }
+            EndTextureMode();               // End drawing to texture (now we have a texture available for next passes)
+            BeginDrawing();
+            ClearBackground(RAYWHITE);  // Clear screen background
+                BeginShaderMode(warpShader);
+                    // NOTE: Render texture must be y-flipped due to default OpenGL coordinates (left-bottom)
+                    DrawTextureRec(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, (float)-target.texture.height }, (Vector2){ 0, 0 }, WHITE);
+                EndShaderMode();
+
+                // Player
+                if (plr.warp.state == WARP_STATE_ACTIVE)
+                    DrawCircleV(plr.position, plr.radius, Fade(plr.color, 0.3));
                 else
                 {
                     DrawCircleV(plr.position, plr.radius, plr.color);
@@ -253,14 +263,6 @@ int main(void)
                             );
                     }
                 }
-            EndTextureMode();               // End drawing to texture (now we have a texture available for next passes)
-            BeginDrawing();
-            ClearBackground(RAYWHITE);  // Clear screen background
-                BeginShaderMode(warpShader);
-                    // NOTE: Render texture must be y-flipped due to default OpenGL coordinates (left-bottom)
-                    DrawTextureRec(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, (float)-target.texture.height }, (Vector2){ 0, 0 }, WHITE);
-                EndShaderMode();
-
                 // Draw help instructions
                 DrawText("Press SPACE to restart level", 40, 40, 20, BLACK);
                 DrawText(TextFormat("Planets remaining: %02i. Level %i", planets_number, level), 40, 70, 20, BLACK);
