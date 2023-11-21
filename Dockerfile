@@ -81,6 +81,7 @@ RUN emcc -o ./build/bhh.html main.cpp -Os -Wall ./raylib/src/libraylib.a -I. -I.
 	--preload-file resources/icon.png@resources/icon.png \
 	--preload-file resources/m13.png@resources/m13.png \
 	--preload-file resources/maya.png@resources/maya.png \
-	--preload-file resources/eat.wav@resources/eat.wav
+	--preload-file resources/eat.wav@resources/eat.wav \
+	--preload-file resources/shaders/glsl330/warp.fs@resources/shaders/glsl330/warp.fs
 
 CMD ["echo", "Hello, run me differently"]
