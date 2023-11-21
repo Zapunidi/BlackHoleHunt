@@ -17,6 +17,7 @@
 #define CIRCLES_SPEED               300
 #define NUMBER_OF_PLAYER_CIRCLES    4
 #define INITIAL_PLAYER_RADIUS       6
+#define WARP_FACTOR_TO_RADIUS       4
 #define WARP_BOOST_ACTIVE_TIME      1.0f
 #define WARP_BOOST_COOLDOWN_TIME    2.0f
 
@@ -85,6 +86,7 @@ int main(void)
     // NOTE: If uniform variable could not be found in the shader, function returns -1
     int warpCenterLoc = GetShaderLocation(warpShader, "center");
     int warpRadiusLoc = GetShaderLocation(warpShader, "radius");
+    int warpPlayerLoc = GetShaderLocation(warpShader, "playerRadius");
     float warpCenter[2] = { (float)screenWidth/2, (float)screenHeight/2 };
 
     // Create a RenderTexture2D to be used for render to texture
@@ -131,7 +133,8 @@ int main(void)
                 warpCenter[0] = plr.position.x;
                 warpCenter[1] = (screenHeight - plr.position.y);
                 SetShaderValue(warpShader, warpCenterLoc, warpCenter, SHADER_UNIFORM_VEC2);
-                float warpRadius = plr.radius * 3;
+                float warpRadius = plr.radius * WARP_FACTOR_TO_RADIUS;
+                SetShaderValue(warpShader, warpPlayerLoc, &plr.radius, SHADER_UNIFORM_FLOAT);
                 SetShaderValue(warpShader, warpRadiusLoc, &warpRadius, SHADER_UNIFORM_FLOAT);
             }
             else
@@ -234,7 +237,9 @@ int main(void)
                 // Player
                 if (plr.warp.state == WARP_STATE_ACTIVE)
                 {
-                    float warpRadius = 1.0;
+                    float warpRadius = 1;
+                    SetShaderValue(warpShader, warpPlayerLoc, &warpRadius, SHADER_UNIFORM_FLOAT);
+                    warpRadius = WARP_FACTOR_TO_RADIUS;
                     SetShaderValue(warpShader, warpRadiusLoc, &warpRadius, SHADER_UNIFORM_FLOAT);
                 }
             EndTextureMode();               // End drawing to texture (now we have a texture available for next passes)

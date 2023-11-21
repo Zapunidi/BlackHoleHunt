@@ -19,6 +19,7 @@ uniform float renderHeight;
 
 // Radius of the warp. Can be updated from the game.
 uniform float radius = 50.0;
+uniform float playerRadius = 50.0;
 float angle = 3.14;
 
 // Center of the warp. Can be updated from game.
@@ -32,14 +33,18 @@ void main()
 
     float dist = length(tc);
 
-    if (dist < radius)
+    if (dist < radius && dist > playerRadius)
     {
         float percent = (radius - dist)/radius;
-        float theta = percent*percent*angle;
-        float s = sin(theta);
-        float c = cos(theta);
+        
+        //float theta = percent*percent*angle;
+        //float s = sin(theta) * (1 - percent);
+        //float c = cos(theta) * (1 - percent);
+        //tc = vec2(dot(tc, vec2(c, -s)), dot(tc, vec2(s, c)));
 
-        tc = vec2(dot(tc, vec2(c, -s)), dot(tc, vec2(s, c)));
+        float factor = playerRadius / dist * percent * percent + 1;
+        
+        tc = tc*factor;
     }
 
     tc += center; // Now tc is a pixel coordinate of fragment
