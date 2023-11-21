@@ -19,7 +19,7 @@ uniform float renderHeight;
 
 // Radius of the warp. Can be updated from the game.
 uniform float radius = 50.0;
-float angle = 0.8;
+float angle = 3.14;
 
 // Center of the warp. Can be updated from game.
 uniform vec2 center = vec2(200.0, 200.0);
@@ -35,7 +35,7 @@ void main()
     if (dist < radius)
     {
         float percent = (radius - dist)/radius;
-        float theta = percent*percent*angle*8.0;
+        float theta = percent*percent*angle;
         float s = sin(theta);
         float c = cos(theta);
 
