@@ -46,8 +46,9 @@ void DrawMenu(const int screenWidth, const int screenHeight)
     ButtonStartPressed = GuiButton((Rectangle){ 120, 208, 144, 24 }, "Start Game"); 
     GuiLine((Rectangle){ 112, 232, 160, 24 }, NULL);
     ButtonExitPressed = GuiButton((Rectangle){ 120, 256, 144, 24 }, "Exit game"); 
-    if (GuiDropdownBox((Rectangle){ 120, 160, 144, 24 }, "Easy,Normal,Hard", &DropdownDifficultyActive, DropdownDifficultyEditMode)) DropdownDifficultyEditMode = !DropdownDifficultyEditMode;
-            
+    if (GuiDropdownBox((Rectangle){ 120, 160, 144, 24 }, "Easy;Normal;Hard", &DropdownDifficultyActive, DropdownDifficultyEditMode)) 
+        DropdownDifficultyEditMode = !DropdownDifficultyEditMode;
+    
     GuiUnlock();
 
     EndDrawing();
