@@ -10,4 +10,6 @@ enum GameState {
     GAME_EXIT // Not used for now.
     }; 
 
+extern int DropdownDifficultyActive;
+
 #endif // MAIN_H

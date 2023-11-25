@@ -8,7 +8,7 @@
 // Black hole hunting: controls initialization
 //----------------------------------------------------------------------------------
 bool DropdownDifficultyEditMode = false;
-int DropdownDifficultyActive = 0;
+int DropdownDifficultyActive = 1;
 bool ButtonStartPressed = false;
 bool ButtonExitPressed = false;
 
