@@ -35,6 +35,6 @@ CircleWave* InitPlanets(CircleWave* planets, int screenWidth, int screenHeight, 
 void SetSound(Sound soundEat);
 
 void InitGame(int screenWidth, int screenHeight);
-GameState ProcessGame(GameState inState, float dt);
+ProgramState ProcessGame(ProgramState inState, float dt);
 void DrawGame(const int screenWidth, const int screenHeight);
 void UnloadGame(void);

@@ -20,6 +20,14 @@ CircleWave* planets = NULL;
 Player plr;
 Sound soundEat;
 
+enum GameState {
+    GAME_ON_GO,
+    GAME_ON_WON,
+    GAME_ON_LOST
+};
+
+GameState gameState;
+
 int screenWidthCache, screenHeightCache;
 int warpCenterLoc, warpRadiusLoc, warpPlayerLoc;
 float warpCenter[2];
@@ -60,9 +68,11 @@ void InitGame(int screenWidth, int screenHeight)
 
     // Create a RenderTexture2D to be used for render to texture
     target = LoadRenderTexture(screenWidth, screenHeight);
+
+    gameState = GAME_ON_GO;
 }
 
-GameState ProcessGame(GameState inState, float dt)
+ProgramState ProcessGame(ProgramState inState, float dt)
 {
     static bool pause = false;
 
@@ -85,12 +95,13 @@ GameState ProcessGame(GameState inState, float dt)
     }
     else
         ;// plr.position = {-1E5, -1E5};
-    if (inState == GAME_WON)
+    if (gameState == GAME_ON_WON)
     {
         plr.radius *= 1 + dt;
         if (plr.radius >= (screenWidthCache + screenHeightCache))
         {
             level = 0; // no planets, need to reinitialize
+            gameState = GAME_ON_GO;
             return GAME_CREDITS;
         }
     }
@@ -116,6 +127,11 @@ GameState ProcessGame(GameState inState, float dt)
     else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
     {
         plr.warp.state = WARP_STATE_ACTIVE;
+    }
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+    {
+        pause = !pause;
     }
     
     // Game physics
@@ -155,7 +171,7 @@ GameState ProcessGame(GameState inState, float dt)
             InitPlayer(plr);
         }
         else
-            return GAME_WON;
+            gameState = GAME_ON_WON;
     }
     return inState;
 }

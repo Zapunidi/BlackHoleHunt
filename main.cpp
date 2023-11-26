@@ -15,7 +15,7 @@
 #include "game.h"
 #include "credits.h"
 
-static GameState state = GAME_MENU;
+static ProgramState state = GAME_MENU;
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -64,7 +64,7 @@ int main(void)
         if (state == GAME_MENU)
             state = ProcessMenu(state, dt);
 
-        else if (state == GAME_ON || state == GAME_WON)
+        else if (state == GAME_ON)
             state = ProcessGame(state, dt);
 
         else if (state == GAME_CREDITS)
@@ -78,7 +78,7 @@ int main(void)
         if (state == GAME_MENU)
             DrawMenu(screenWidth, screenHeight);
 
-        else if (state == GAME_ON || state == GAME_WON)
+        else if (state == GAME_ON)
             DrawGame(screenWidth, screenHeight);
         
         else if (state == GAME_CREDITS)

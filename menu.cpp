@@ -17,7 +17,7 @@ void InitMenu(int screenWidth, int screenHeight)
     return;
 }
 
-GameState ProcessMenu(GameState inState, float dt)
+ProgramState ProcessMenu(ProgramState inState, float dt)
 {
     if (ButtonStartPressed)
     {

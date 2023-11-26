@@ -24,7 +24,7 @@ void InitCredits(int screenWidth, int screenHeight)
     UnloadImage(img[1]);
 }
 
-GameState ProcessCredits(GameState inState, float dt)
+ProgramState ProcessCredits(ProgramState inState, float dt)
 {
     static float CreditsTime = 0;
     CreditsTime += dt;
