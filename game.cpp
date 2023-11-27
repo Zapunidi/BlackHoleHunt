@@ -83,7 +83,7 @@ ProgramState ProcessGame(ProgramState inState, float dt)
 
         pause = false;
     }
-    if (IsCursorOnScreen())
+    if (IsCursorOnScreen() && !pause)
     {
         plr.position = GetMousePosition();
         warpCenter[0] = plr.position.x;
@@ -137,7 +137,10 @@ ProgramState ProcessGame(ProgramState inState, float dt)
     // Game physics
     if (plr.warp.state != WARP_STATE_ACTIVE && ! pause)
         if (-1 == GravityCollision(plr, planets, planets_number, dt, soundEat))
+        {
             pause = true;
+            gameState = GAME_ON_LOST;
+        }
 
     for (int i = planets_number - 1; (i >= 0) && !pause; i--)
     {
@@ -294,8 +297,8 @@ int GravityCollision (Player& plr, CircleWave* planets, unsigned int& planets_nu
             }
         }
         
-        planets[i].v.x += (1500 + 1500 * DropdownDifficultyActive) * dt * plr.radius * dx / distance2;
-        planets[i].v.y += (1500 + 1500 * DropdownDifficultyActive) * dt * plr.radius * dy / distance2;
+        planets[i].v.x += (2000 + 1000 * DropdownDifficultyActive) * dt * plr.radius * dx / distance2;
+        planets[i].v.y += (2000 + 1000 * DropdownDifficultyActive) * dt * plr.radius * dy / distance2;
     }
     return 0;
 }

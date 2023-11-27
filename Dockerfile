@@ -75,7 +75,7 @@ WORKDIR /root
 COPY . .
 RUN rm -rf build && \
 	mkdir -p build
-RUN emcc -o ./build/bhh.html main.cpp -Os -Wall ./raylib/src/libraylib.a -I. -I./include \
+RUN emcc -o ./build/bhh.html main.cpp menu.cpp game.cpp credits.cpp -Os -Wall ./raylib/src/libraylib.a -I. -I./include \
 	-L. -L./raylib/src -s USE_GLFW=3 -s ASYNCIFY --shell-file ./shell1_micro.html -DPLATFORM_WEB \
 	--preload-file resources/mini1111.xm@resources/mini1111.xm \
 	--preload-file resources/icon.png@resources/icon.png \
