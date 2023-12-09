@@ -11,6 +11,8 @@ bool DropdownDifficultyEditMode = false;
 int DropdownDifficultyActive = 1;
 bool ButtonStartPressed = false;
 bool ButtonExitPressed = false;
+bool TextBoxCodeEditMode = false;
+char TextBoxCodeText[128] = "";
 
 void InitMenu(int screenWidth, int screenHeight)
 {
@@ -19,7 +21,7 @@ void InitMenu(int screenWidth, int screenHeight)
 
 ProgramState ProcessMenu(ProgramState inState, float dt)
 {
-    if (ButtonStartPressed)
+    if (ButtonStartPressed && TextIsEqual(TextBoxCodeText, "999"))
     {
         HideCursor();
         return GAME_ON;
@@ -34,22 +36,24 @@ ProgramState ProcessMenu(ProgramState inState, float dt)
 void DrawMenu(const int screenWidth, const int screenHeight)
 {
     BeginDrawing();
-    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR))); 
+        ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR))); 
+        
+        if (DropdownDifficultyEditMode)
+            GuiLock();
 
-    // raygui: controls drawing
-    //----------------------------------------------------------------------------------
-    if (DropdownDifficultyEditMode) GuiLock();
-
-    GuiPanel((Rectangle){ 104, 136, 176, 160 }, NULL);
-    GuiLabel((Rectangle){ 128, 136, 128, 24 }, "Difficulty:");
-    GuiLine((Rectangle){ 112, 184, 160, 24 }, NULL);
-    ButtonStartPressed = GuiButton((Rectangle){ 120, 208, 144, 24 }, "Start Game"); 
-    GuiLine((Rectangle){ 112, 232, 160, 24 }, NULL);
-    ButtonExitPressed = GuiButton((Rectangle){ 120, 256, 144, 24 }, "Exit game"); 
-    if (GuiDropdownBox((Rectangle){ 120, 160, 144, 24 }, "Easy;Normal;Hard", &DropdownDifficultyActive, DropdownDifficultyEditMode)) 
-        DropdownDifficultyEditMode = !DropdownDifficultyEditMode;
-    
-    GuiUnlock();
+        GuiPanel((Rectangle){ 104, 144, 176, 208 }, NULL);
+        GuiLabel((Rectangle){ 120, 144, 128, 24 }, "Difficulty:");
+        GuiLine((Rectangle){ 112, 192, 160, 24 }, NULL);
+        ButtonStartPressed = GuiButton((Rectangle){ 120, 216, 144, 24 }, "Start Game"); 
+        GuiLine((Rectangle){ 112, 288, 160, 24 }, NULL);
+        ButtonExitPressed = GuiButton((Rectangle){ 120, 312, 144, 24 }, "Exit game"); 
+        if (GuiTextBox((Rectangle){ 120, 264, 144, 24 }, TextBoxCodeText, 128, TextBoxCodeEditMode))
+            TextBoxCodeEditMode = !TextBoxCodeEditMode;
+        GuiLabel((Rectangle){ 120, 240, 120, 24 }, "Code:");
+        if (GuiDropdownBox((Rectangle){ 120, 168, 144, 24 }, "Easy;Normal;Hard", &DropdownDifficultyActive, DropdownDifficultyEditMode))
+            DropdownDifficultyEditMode = !DropdownDifficultyEditMode;
+            
+        GuiUnlock();
 
     EndDrawing();
 }
