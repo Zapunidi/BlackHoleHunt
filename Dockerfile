@@ -17,11 +17,14 @@ WORKDIR /root
 # Bash is required for source command
 SHELL ["/bin/bash", "-c"]
 
-### Stage 1 - add packages ###
+### Stage 1 - add packages and raylib sources ###
 
 # Update Ubuntu Software repository and install tools to download libraries (git), make emscripten work with python, and add Makefile support wit build-essential
 RUN apt update && \
-	apt install -y python3 git build-essential
+	apt install -y python3 git build-essential cmake
+
+# Download raylib
+RUN git clone https://github.com/Zapunidi/raylib.git
 
 ### Stage 2 --- download and setup emscripten ###
 
@@ -37,12 +40,9 @@ ENV EMSDK=/root/emsdk \
 	EMSDK_NODE=/root/emsdk/node/16.20.0_64bit/bin/node \
 	PATH="${PATH}:/root/emsdk:/root/emsdk/upstream/emscripten:/root/emsdk/node/16.20.0_64bit/bin"
 
-### Stage 3 --- download and compile raylib ###
+### Stage 3 web --- web compile raylib ###
 
-FROM emsdk as raylib
-
-# Download raylib
-RUN git clone https://github.com/Zapunidi/raylib.git
+FROM emsdk as webraylib
 
 WORKDIR /root/raylib/src
 
@@ -58,17 +58,32 @@ RUN emcc -c rcore.c -Os -Wall -DPLATFORM_WEB -DGRAPHICS_API_OPENGL_ES2 && \
 RUN emar rcs libraylib.a rcore.o rshapes.o rtextures.o rtext.o rmodels.o utils.o raudio.o && \
 	rm *.o
 
-### Stage 4 --- compile examples for web ###
+### Stage 3 --- compile raylib ###
 
-FROM raylib as examples
+FROM base as raylib
+
+RUN apt install -y libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev
+
+RUN mkdir raylib/build && \
+	cd ./raylib/build && \
+	cmake .. && \
+	make
+
+### Stage 4 web --- compile examples for web ###
+
+FROM webraylib as webexamples
 
 WORKDIR /root/raylib/examples
 
 RUN PLATFORM=PLATFORM_WEB make
 
-### Stage 5 --- Copy our code in image to build it ###
+### Stage 4 --- compile examples ###
 
-FROM raylib as build
+# Examples are build with raylib now. So we may ignore this step
+
+### Stage 5 web --- Copy our code in image to build it ###
+
+FROM webraylib as webbuild
 
 WORKDIR /root
 
@@ -83,5 +98,20 @@ RUN emcc -o ./build/bhh.html main.cpp menu.cpp game.cpp credits.cpp -Os -Wall ./
 	--preload-file resources/maya.png@resources/maya.png \
 	--preload-file resources/eat.wav@resources/eat.wav \
 	--preload-file resources/shaders/glsl330/warp.fs@resources/shaders/glsl330/warp.fs
+
+### Stage 5 --- Copy our code in image to build it ###
+
+FROM raylib as build
+
+WORKDIR /root
+
+COPY . .
+RUN rm -rf build && \
+	mkdir -p build && \
+	rm lib/libraylib.a && \
+	cp raylib/build/raylib/libraylib.a lib/libraylib.a
+RUN cd build && \
+	cmake .. && \
+	make
 
 CMD ["echo", "Hello, run me differently"]
