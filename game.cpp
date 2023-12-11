@@ -10,7 +10,7 @@
 
 #define GLSL_VERSION            330
 
-static float difficulty[11] = {0, 3, 4, 5, 5.5, 5.8, 6, 6.2, 6.3, 6.5, 6.7};
+static float difficulty[11] = {0, 3, 4, 5, 5.5f, 5.8f, 6, 6.2f, 6.3f, 6.5f, 6.7f};
 static int level = 1;
 static unsigned int planets_number = 0;
 
@@ -53,7 +53,7 @@ void InitGame(int screenWidth, int screenHeight)
     warpShader = LoadShader(0, TextFormat("../resources/shaders/glsl%i/warp.fs", GLSL_VERSION));
     
     {
-        float width = screenWidth, height = screenHeight;
+        float width = (float)screenWidth, height = (float)screenHeight;
         SetShaderValue(warpShader, GetShaderLocation(warpShader, "renderWidth"), &width, SHADER_UNIFORM_FLOAT);
         SetShaderValue(warpShader, GetShaderLocation(warpShader, "renderHeight"), &height, SHADER_UNIFORM_FLOAT);
     }
@@ -151,12 +151,12 @@ ProgramState ProcessGame(ProgramState inState, float dt)
             ((planets[i].position.y + planets[i].radius >= screenHeightCache) && (planets[i].v.y > 0)) ||
             ((planets[i].position.y - planets[i].radius <= 0) && (planets[i].v.y < 0))
         )
-            planets[i].v.y = -0.5 * planets[i].v.y;
+            planets[i].v.y = -0.5f * planets[i].v.y;
         if (
             ((planets[i].position.x + planets[i].radius >= screenWidthCache) && (planets[i].v.x > 0)) ||
             ((planets[i].position.x - planets[i].radius <= 0) && (planets[i].v.x < 0))
         )
-            planets[i].v.x = -0.5 * planets[i].v.x;
+            planets[i].v.x = -0.5f * planets[i].v.x;
     }
     
     // Calculating moving circles visual effect
@@ -210,14 +210,14 @@ void DrawGame(const int screenWidth, const int screenHeight)
 
         // Player
         if (plr.warp.state == WARP_STATE_ACTIVE)
-            DrawCircleV(plr.position, plr.radius, Fade(plr.color, 0.3));
+            DrawCircleV(plr.position, plr.radius, Fade(plr.color, 0.3f));
         else
         {
             DrawCircleV(plr.position, plr.radius, plr.color);
             for (int i = 0; i < NUMBER_OF_PLAYER_CIRCLES; i++)
             {
                 DrawCircleLines(
-                    plr.position.x, plr.position.y, 
+                    (int)plr.position.x, (int)plr.position.y, 
                     plr.radius * (NUMBER_OF_PLAYER_CIRCLES - i + plr.gravity_lines_shift), 
                     Fade(plr.color, plr.alpha * (i + 1 - plr.gravity_lines_shift) / (NUMBER_OF_PLAYER_CIRCLES + 1))
                     );
@@ -260,7 +260,7 @@ CircleWave* InitPlanets(CircleWave* planets, int screenWidth, int screenHeight, 
     for (int i = planets_number - 1; i >= 0; i--)
     {
         planets[i].alpha = 0.8f;
-        planets[i].radius = (float)INITIAL_PLAYER_RADIUS / 1.3 * expf((float)i / 5);
+        planets[i].radius = (float)INITIAL_PLAYER_RADIUS / 1.3f * expf((float)i / 5);
         planets[i].position.x = (float)GetRandomValue((int)planets[i].radius, (int)(screenWidth - planets[i].radius));
         planets[i].position.y = (float)GetRandomValue((int)planets[i].radius, (int)(screenHeight - planets[i].radius));
         planets[i].v.x = (float)GetRandomValue(-CIRCLES_SPEED, CIRCLES_SPEED);

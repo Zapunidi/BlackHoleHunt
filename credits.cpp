@@ -3,8 +3,8 @@
 #include "main.h"
 
 static Texture2D Dedication[2];
-static float DedicationWidth[2];
-static float DedicationHeight[2];
+static int DedicationWidth[2];
+static int DedicationHeight[2];
 static float CreditsAlpha = 0;
 static int DedicationNum = 0;
 

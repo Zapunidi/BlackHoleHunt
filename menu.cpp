@@ -1,7 +1,10 @@
+// For some reason the following define must go before raylib and not just raygui
+#define _CRT_SECURE_NO_WARNINGS 
 #include "raylib.h"
 
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
+#undef _CRT_SECURE_NO_WARNINGS
 
 #include "menu.h"
 
