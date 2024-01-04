@@ -9,7 +9,7 @@ enum WarpState {
 typedef struct {
     float activeLeft;
     float cooldown;
-    WarpState state;
+    enum WarpState state;
 } WarpBoost;
 
 typedef struct {
@@ -29,12 +29,12 @@ typedef struct {
     WarpBoost warp;
 } Player;
 
-void InitCircle(CircleWave& cir, int width, int height, float difficulty);
-void InitPlayer(Player& plr);
+//void InitCircle(CircleWave* cir, int width, int height, float difficulty);
+void InitPlayer(Player* plr);
 CircleWave* InitPlanets(CircleWave* planets, int screenWidth, int screenHeight, float difficulty);
 void SetSound(Sound soundEat);
 
 void InitGame(int screenWidth, int screenHeight);
-ProgramState ProcessGame(ProgramState inState, float dt);
+enum ProgramState ProcessGame(enum ProgramState inState, float dt);
 void DrawGame(const int screenWidth, const int screenHeight);
 void UnloadGame(void);

@@ -22,7 +22,7 @@ void InitMenu(int screenWidth, int screenHeight)
     return;
 }
 
-ProgramState ProcessMenu(ProgramState inState, float dt)
+enum ProgramState ProcessMenu(enum ProgramState inState, float dt)
 {
     if (ButtonStartPressed && TextIsEqual(TextBoxCodeText, "999"))
     {

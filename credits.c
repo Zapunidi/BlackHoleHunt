@@ -24,7 +24,7 @@ void InitCredits(int screenWidth, int screenHeight)
     UnloadImage(img[1]);
 }
 
-ProgramState ProcessCredits(ProgramState inState, float dt)
+enum ProgramState ProcessCredits(enum ProgramState inState, float dt)
 {
     static float CreditsTime = 0;
     CreditsTime += dt;

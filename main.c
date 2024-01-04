@@ -15,7 +15,7 @@
 #include "game.h"
 #include "credits.h"
 
-static ProgramState state = GAME_MENU;
+static enum ProgramState state = GAME_MENU;
 
 //------------------------------------------------------------------------------------
 // Program main entry point
