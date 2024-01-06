@@ -1,5 +1,6 @@
 #include "game.h"
 #include <math.h>
+#include <stddef.h>
 
 #define CIRCLES_SPEED               300
 #define NUMBER_OF_PLAYER_CIRCLES    4
